@@ -1,11 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useSprings, animated } from '@react-spring/web';
 import AnimatedPixelRoom from './AnimatedPixelRoom';
-import DuskBackground from './DuskBackground';
 
 const numRooms = 20;
 const roomSize = 50; // pixels
-const maxSpeed = 1; // Maximum pixels a room can move per interval
+const maxSpeed = 5; // Maximum pixels a room can move per interval
 
 function PixelRooms() {
     const [rooms, setRooms] = useState(() => generateRooms(window.innerWidth - roomSize, window.innerHeight - roomSize));
@@ -25,29 +24,20 @@ function PixelRooms() {
     }
 
     useEffect(() => {
-      let animationFrameId;
-  
-      const animate = () => {
-          setRooms(prevRooms => prevRooms.map(room => {
-              let newX = room.x + room.dx * room.speed;
-              let newY = room.y + room.dy * room.speed;
-  
-              // Boundary checks to reverse direction upon hitting an edge
-              if (newX < 0 || newX > window.innerWidth - roomSize) room.dx *= -1;
-              if (newY < 0 || newY > window.innerHeight - roomSize) room.dy *= -1;
-  
-              return { ...room, x: newX, y: newY };
-          }));
-  
-          animationFrameId = requestAnimationFrame(animate);
-      };
-  
-      animationFrameId = requestAnimationFrame(animate);
-  
-      return () => cancelAnimationFrame(animationFrameId);
-  }, []);
-  
-  
+        const interval = setInterval(() => {
+            setRooms(rooms.map(room => {
+                let newX = room.x + room.dx * room.speed;
+                let newY = room.y + room.dy * room.speed;
+
+                // Boundary checks to reverse direction upon hitting an edge
+                if (newX < 0 || newX > window.innerWidth - roomSize) room.dx *= -1;
+                if (newY < 0 || newY > window.innerHeight - roomSize) room.dy *= -1;
+
+                return { ...room, x: newX, y: newY };
+            }));
+        }, 100);
+        return () => clearInterval(interval);
+    }, [rooms]);
 
     const springs = useSprings(
         rooms.length,
@@ -74,7 +64,7 @@ function PixelRooms() {
                     onMouseLeave={() => setRooms(prev => prev.map(r => r.id === rooms[index].id ? { ...r, active: false } : r))}
                     style={{ ...props, position: 'absolute', width: `${roomSize}px`, height: `${roomSize}px`, cursor: 'pointer' }}
                 >
-                    <AnimatedPixelRoom to="/register">Room {rooms[index].id}</AnimatedPixelRoom>
+                    <AnimatedPixelRoom to="/some-path">Room {rooms[index].id}</AnimatedPixelRoom>
                 </animated.div>
             ))}
         </div>
