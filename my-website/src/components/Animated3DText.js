@@ -1,25 +1,21 @@
 import React from 'react';
-import { useSpring, animated, config } from 'react-spring';
+import { useSprings, animated } from 'react-spring';
 
 const Animated3DText = ({ text }) => {
-    const springs = text.split('').map((letter, index) => 
-        useSpring({
+    const letters = text.split('');
+    const springs = useSprings(
+        letters.length,
+        letters.map((_, index) => ({
             loop: true,
             to: [
-                { color: `hsl(${index * 360 / text.length}, 100%, 70%)` },
-                { color: `hsl(${(index * 360 / text.length + 180) % 360}, 100%, 70%)` }
+                { color: `hsl(${index * 60 / letters.length}, 100%, 70%)` },
+                { color: `hsl(${(index * 60 / letters.length + 180) % 360}, 100%, 70%)` }
             ],
-            from: { color: `hsl(${index * 360 / text.length}, 100%, 70%)` },
-            config: { duration: 8000 },  // Increase duration for slower change
-            delay: index * 200,  // Increase delay for more staggered effect
-        })
+            from: { color: `hsl(${index * 60 / letters.length}, 100%, 70%)` },
+            config: { duration: 8000 },
+            delay: index * 200,
+        }))
     );
-
-    const styledLetters = text.split('').map((letter, index) => (
-        <animated.span key={index} style={springs[index]}>
-            {letter}
-        </animated.span>
-    ));
 
     return (
         <div style={{
@@ -30,13 +26,16 @@ const Animated3DText = ({ text }) => {
             width: '100%',
             textShadow: '0 2px 2px rgba(0,0,0,0.3)'
         }}>
-            {styledLetters}
+            {springs.map((props, index) => (
+                <animated.span key={index} style={props}>
+                    {letters[index]}
+                </animated.span>
+            ))}
         </div>
     );
 };
 
 export default Animated3DText;
-
 
 
 
